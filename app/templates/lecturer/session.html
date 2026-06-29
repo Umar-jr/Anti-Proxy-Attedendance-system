@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="page-header fu">
+  <div>
+    <h1 class="page-title">Live Session #{{ session.id }}</h1>
+    <p class="page-sub">
+      <span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--indigo-light);">{{ course.code }}</span>
+      · {{ course.title }}
+      <span style="margin:0 .5rem;color:var(--slate-300);">|</span>
+      Radius {{ session.radius_m }}m
+      <span style="margin:0 .5rem;color:var(--slate-300);">|</span>
+      Ends {{ session.ends_at.strftime('%H:%M UTC') }}
+    </p>
+  </div>
+  <div class="flex gap-3 items-center" style="flex-wrap:wrap;">
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('main.lecturer_dashboard') }}">← Back</a>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('main.lecturer_export_csv', session_id=session.id) }}">⬇ Export CSV</a>
+    <form method="post" action="{{ url_for('main.lecturer_end_session', session_id=session.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-danger btn-sm" type="submit" {% if session.status != 'ACTIVE' %}disabled style="opacity:.5;cursor:not-allowed;"{% endif %}>
+        ⏹ End Session
+      </button>
+    </form>
+    <span class="badge {% if session.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}" style="padding:6px 14px;font-size:.78rem;">
+      {% if session.status == 'ACTIVE' %}● Active{% else %}Ended{% endif %}
+    </span>
+  </div>
+</div>
+
+<div class="grid grid-2 fu fu-1" style="grid-template-columns:2fr 3fr;">
+
+  <!-- QR Panel -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">Dynamic QR Code</span>
+        <span class="badge badge-indigo">Auto-refreshing</span>
+      </div>
+      <div class="qr-container">
+        <div class="qr-ring">
+          <img id="qrImg" class="qr-img" alt="Loading QR…" />
+        </div>
+        <div class="qr-ttl" id="qrTtl">Loading…</div>
+        <div class="qr-note">QR refreshes automatically. Students must scan within the window and be inside the {{ session.radius_m }}m radius.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Panel -->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">Attendance <span style="font-weight:400;color:var(--slate-500);">(real-time)</span></span>
+        <span class="badge badge-success" id="attCount">0 marked</span>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-table" id="attTable">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Matric</th>
+              <th>Time (UTC)</th>
+              <th>Dist (m)</th>
+              <th>Flag</th>
+            </tr>
+          </thead>
+          <tbody id="attBody">
+            {% for att, user in attendance_rows %}
+            <tr>
+              <td style="font-weight:500;">{{ user.full_name }}</td>
+              <td class="text-muted text-small">{{ user.matric_no or '—' }}</td>
+              <td class="text-small text-muted">{{ att.marked_at.strftime('%H:%M:%S') }}</td>
+              <td class="{% if att.distance_m <= session.radius_m %}dist-ok{% else %}dist-far{% endif %} text-small">{{ '%.1f'|format(att.distance_m) }}</td>
+              <td>
+                {% if att.flagged %}
+                  <span class="badge badge-danger flag-yes">⚠ YES</span>
+                {% else %}
+                  <span class="badge badge-success flag-no">✓ NO</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="text-muted text-small" style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slate-100);">
+        ⚠ Flag = YES indicates the student used a different device from a previous session — possible impersonation.
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>window.__SESSION_ID__ = {{ session.id }};</script>
+<script src="{{ url_for('static', filename='js/qr.js') }}"></script>
+<script src="{{ url_for('static', filename='js/live.js') }}"></script>
+<script>
+  // Update count badge as rows are added by live.js
+  const observer = new MutationObserver(() => {
+    const rows = document.querySelectorAll('#attBody tr');
+    const badge = document.getElementById('attCount');
+    if (badge) badge.textContent = rows.length + ' marked';
+  });
+  observer.observe(document.getElementById('attBody'), { childList: true });
+</script>
+{% endblock %}

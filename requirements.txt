@@ -1,0 +1,15 @@
+# --- Application ---
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+qrcode==7.4.2
+Pillow==10.4.0
+itsdangerous==2.2.0
+python-dotenv==1.0.1
+
+# --- Production server ---
+gunicorn==22.0.0
+
+# --- PostgreSQL driver (used in production via DATABASE_URL) ---
+psycopg2-binary==2.9.9

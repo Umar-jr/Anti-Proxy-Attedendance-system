@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="page-header fu">
+  <div>
+    <h1 class="page-title">Student Dashboard</h1>
+    <p class="page-sub">Track your course attendance and active sessions</p>
+  </div>
+</div>
+
+<div class="grid grid-2">
+
+  <!-- My Courses -->
+  <div class="card fu fu-1">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">My Courses</span>
+        <span class="badge badge-indigo">{{ courses|length }}</span>
+      </div>
+      {% if courses %}
+        {% for c in courses %}
+        <div class="course-item">
+          <div>
+            <div class="course-code">{{ c.code }}</div>
+            <div class="course-title">{{ c.title }}</div>
+          </div>
+          <span class="badge badge-success">Enrolled</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty" style="padding:2rem 1rem;">
+          <div class="empty-icon">📚</div>
+          <div class="empty-title">No courses yet</div>
+          <p>Ask admin to enroll you in your courses</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Active Sessions -->
+  <div class="card fu fu-2">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">Active Sessions</span>
+        <span class="badge badge-success">{{ sessions|length }} live</span>
+      </div>
+      {% if sessions %}
+        {% for s in sessions %}
+        <div class="session-item active-session">
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">Session #{{ s.id }} · Course {{ s.course_id }}</div>
+            <div class="text-muted text-small">Ends {{ s.ends_at.strftime('%H:%M UTC') }}</div>
+          </div>
+          {% if s.id in attended_session_ids %}
+            <span class="badge badge-success">✓ Marked</span>
+          {% else %}
+            <span class="badge badge-warning">📱 Scan QR in class</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty" style="padding:2rem 1rem;">
+          <div class="empty-icon">🕐</div>
+          <div class="empty-title">No active sessions</div>
+          <p>Sessions will appear here when your lecturer starts one</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

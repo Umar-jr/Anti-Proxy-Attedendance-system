@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="page-header fu">
+  <div>
+    <h1 class="page-title">Lecturer Dashboard</h1>
+    <p class="page-sub">Manage your sessions and track attendance</p>
+  </div>
+</div>
+
+<div class="grid grid-2">
+
+  <!-- My Courses -->
+  <div class="card fu fu-1">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">My Courses</span>
+        <span class="badge badge-indigo">{{ courses|length }}</span>
+      </div>
+      {% if courses %}
+        {% for c in courses %}
+        <div class="course-item">
+          <div>
+            <div class="course-code">{{ c.code }}</div>
+            <div class="course-title">{{ c.title }}</div>
+          </div>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('main.lecturer_start_session', course_id=c.id) }}">
+            ▶ Start Session
+          </a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty" style="padding:2rem 1rem;">
+          <div class="empty-icon">📚</div>
+          <div class="empty-title">No courses assigned</div>
+          <p>Ask admin to assign courses to your account</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Sessions -->
+  <div class="card fu fu-2">
+    <div class="card-body">
+      <div class="card-header-row">
+        <span class="card-title">Recent Sessions</span>
+        <span class="badge badge-neutral">{{ sessions|length }}</span>
+      </div>
+      {% if sessions %}
+        {% for s in sessions %}
+        <a class="session-item {% if s.status == 'ACTIVE' %}active-session{% else %}ended-session{% endif %}" href="{{ url_for('main.lecturer_session', session_id=s.id) }}">
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">Session #{{ s.id }} · Course {{ s.course_id }}</div>
+            <div class="text-muted text-small">Ends {{ s.ends_at.strftime('%d %b, %H:%M') }} UTC</div>
+          </div>
+          <span class="badge {% if s.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}">
+            {% if s.status == 'ACTIVE' %}● Active{% else %}Ended{% endif %}
+          </span>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="empty" style="padding:2rem 1rem;">
+          <div class="empty-icon">🕐</div>
+          <div class="empty-title">No sessions yet</div>
+          <p>Start a session from your course list</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

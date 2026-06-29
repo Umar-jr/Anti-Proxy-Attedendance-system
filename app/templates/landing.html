@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Hero -->
+<div class="hero fu">
+  <div class="hero-eyebrow">
+    <span>🔒</span> Secure · Real-time · Anti-Proxy
+  </div>
+  <h1 class="hero-title">Smart Attendance<br>for <span>Modern Campuses</span></h1>
+  <p class="hero-body">A dynamic QR-based attendance platform with GPS verification, device fingerprinting, and real-time monitoring — built for higher education.</p>
+  <div class="hero-features">
+    <div class="hero-feature">
+      <div class="hero-feature-icon">⚡</div>
+      Dynamic QR codes that refresh and expire automatically
+    </div>
+    <div class="hero-feature">
+      <div class="hero-feature-icon">📍</div>
+      GPS-based location verification within a defined radius
+    </div>
+    <div class="hero-feature">
+      <div class="hero-feature-icon">🛡️</div>
+      Device fingerprinting to flag impersonation attempts
+    </div>
+    <div class="hero-feature">
+      <div class="hero-feature-icon">📊</div>
+      Live attendance view and exportable CSV reports
+    </div>
+  </div>
+  <a class="hero-cta" href="{{ url_for('main.login') }}">Get started →</a>
+  <div class="hero-badge">🎓</div>
+</div>
+
+<!-- Role Cards -->
+<div class="grid grid-3 fu fu-2">
+  <div class="card">
+    <div class="card-body" style="text-align:center;padding:2rem 1.5rem;">
+      <div style="font-size:2.2rem;margin-bottom:.75rem;">👩‍💼</div>
+      <div class="card-title" style="text-align:center">Admin</div>
+      <p class="text-muted text-small">Manage users, courses, and enrollments. View system-wide reports.</p>
+    </div>
+  </div>
+  <div class="card" style="border-color: var(--indigo-light);">
+    <div class="card-body" style="text-align:center;padding:2rem 1.5rem;background:var(--indigo-pale);border-radius:var(--radius);">
+      <div style="font-size:2.2rem;margin-bottom:.75rem;">👨‍🏫</div>
+      <div class="card-title" style="text-align:center">Lecturer</div>
+      <p class="text-muted text-small">Start sessions, display rotating QR codes, view live attendance.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body" style="text-align:center;padding:2rem 1.5rem;">
+      <div style="font-size:2.2rem;margin-bottom:.75rem;">👩‍🎓</div>
+      <div class="card-title" style="text-align:center">Student</div>
+      <p class="text-muted text-small">Scan QR in class. Location verified. Attendance marked instantly.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

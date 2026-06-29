@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or 'Attend — QR Attendance System' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="{{ url_for('main.landing') }}">
+      <div class="nav-brand-mark">🎓</div>
+      <span class="nav-brand-name">Attend<span>QR</span></span>
+    </a>
+    <div class="nav-actions">
+      {% if current_user.is_authenticated %}
+        <span class="nav-user-pill">
+          <span class="nav-role-dot role-{{ current_user.role.lower() }}"></span>
+          {{ current_user.full_name.split()[0] }} · {{ current_user.role }}
+        </span>
+        <a class="btn-ghost-nav" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <a class="btn-ghost-nav" href="{{ url_for('main.logout') }}">Logout</a>
+      {% else %}
+        <a class="btn-primary-nav" href="{{ url_for('main.login') }}">Sign in →</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<main class="site-main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }} fu">
+          <span>{{ message }}</span>
+          <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

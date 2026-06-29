@@ -1,0 +1,26 @@
+# Render Blueprint — deploys the web service + a free Postgres database.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: qr-attendance
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # 1 worker (keeps the in-memory live-update channel working),
+    # 8 threads (handle the lecturer's live SSE stream + bursts of student scans).
+    startCommand: gunicorn -w 1 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT run:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+      - key: SECRET_KEY
+        generateValue: true          # Render generates a strong random value
+      - key: BASE_URL
+        sync: false                  # set this yourself after the first deploy
+      - key: DATABASE_URL
+        fromDatabase:
+          name: qr-attendance-db
+          property: connectionString
+
+databases:
+  - name: qr-attendance-db
+    plan: free

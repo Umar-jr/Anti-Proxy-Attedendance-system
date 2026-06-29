@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="page-header fu">
+  <div>
+    <h1 class="page-title">Session Reports</h1>
+    <p class="page-sub">All sessions across all courses</p>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('main.admin_dashboard') }}">← Back to Dashboard</a>
+</div>
+
+<div class="card fu fu-1">
+  <div class="card-body" style="padding:0;">
+    {% if sessions %}
+    <div class="tbl-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Session ID</th>
+            <th>Course</th>
+            <th>Lecturer</th>
+            <th>Started</th>
+            <th>Ended</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sessions %}
+          <tr>
+            <td><span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--slate-500);">#{{ s.id }}</span></td>
+            <td class="fw-bold">{{ s.course_id }}</td>
+            <td class="text-muted text-small">{{ s.lecturer_id }}</td>
+            <td class="text-small text-muted">{{ s.starts_at.strftime('%d %b %Y, %H:%M') }}</td>
+            <td class="text-small text-muted">{{ s.ends_at.strftime('%d %b %Y, %H:%M') }}</td>
+            <td>
+              <span class="badge {% if s.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}">
+                {% if s.status == 'ACTIVE' %}● {% endif %}{{ s.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No sessions yet</div>
+      <p>Sessions will appear here once lecturers start them</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

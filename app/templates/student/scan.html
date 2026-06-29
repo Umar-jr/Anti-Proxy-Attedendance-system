@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex;justify-content:center;padding:2rem 0;">
+  <div style="width:100%;max-width:560px;">
+
+    <div class="page-header fu" style="margin-bottom:1.5rem;">
+      <div>
+        <h1 class="page-title">Mark Attendance</h1>
+        <p class="page-sub">QR verification in progress</p>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('main.student_dashboard') }}">← Back</a>
+    </div>
+
+    {% if token_status == 'ok' %}
+
+    <!-- Course Info Banner -->
+    <div style="background:var(--indigo-pale);border:1px solid rgba(79,70,229,.2);border-radius:var(--radius-sm);padding:1rem 1.25rem;margin-bottom:1.25rem;" class="fu fu-1">
+      <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;color:var(--indigo);margin-bottom:.2rem;">
+        {{ course.code }} — {{ course.title }}
+      </div>
+      <div class="text-muted text-small">Session ends {{ session.ends_at.strftime('%H:%M UTC') }} · Allowed radius {{ session.radius_m }}m</div>
+    </div>
+
+    <!-- Status Box -->
+    <div class="card fu fu-2">
+      <div class="card-body">
+
+        <div class="scan-status info" id="statusBox">
+          📍 Allow location access, then tap "Submit Attendance"
+        </div>
+
+        <!-- Steps -->
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;">
+          <div style="display:flex;gap:12px;align-items:center;padding:.75rem 1rem;background:var(--slate-100);border-radius:var(--radius-sm);">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--indigo);flex-shrink:0;">1</div>
+            <div class="text-small">Your <strong>GPS location</strong> will be verified against the lecture hall coordinates</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;padding:.75rem 1rem;background:var(--slate-100);border-radius:var(--radius-sm);">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--indigo);flex-shrink:0;">2</div>
+            <div class="text-small">Your <strong>device fingerprint</strong> is checked to flag proxy submissions</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;padding:.75rem 1rem;background:var(--slate-100);border-radius:var(--radius-sm);">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--indigo);flex-shrink:0;">3</div>
+            <div class="text-small">Your attendance is <strong>marked instantly</strong> on the lecturer's live dashboard</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" id="btnSubmit">✅ Submit Attendance</button>
+          <a class="btn btn-ghost" href="{{ url_for('main.student_dashboard') }}">Cancel</a>
+        </div>
+
+      </div>
+    </div>
+
+    {% elif token_status == 'expired' %}
+    <div class="card fu fu-1">
+      <div class="card-body" style="text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">⏱️</div>
+        <h2 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:.5rem;">QR Code Expired</h2>
+        <p class="text-muted">This QR code has expired. Please scan the <strong>latest QR</strong> displayed by your lecturer — they refresh every few seconds.</p>
+        <a class="btn btn-primary" href="{{ url_for('main.student_dashboard') }}" style="margin-top:1.5rem;">← Back to Dashboard</a>
+      </div>
+    </div>
+
+    {% elif token_status == 'ended' %}
+    <div class="card fu fu-1">
+      <div class="card-body" style="text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+        <h2 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:.5rem;">Session Ended</h2>
+        <p class="text-muted">This session is no longer active. Attendance is no longer being accepted.</p>
+        <a class="btn btn-ghost" href="{{ url_for('main.student_dashboard') }}" style="margin-top:1.5rem;">← Back to Dashboard</a>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="card fu fu-1">
+      <div class="card-body" style="text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">❌</div>
+        <h2 style="font-family:'Outfit',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:.5rem;">Invalid QR Code</h2>
+        <p class="text-muted">This QR code is not valid. Please make sure to scan the QR displayed by your lecturer in class.</p>
+        <a class="btn btn-ghost" href="{{ url_for('main.student_dashboard') }}" style="margin-top:1.5rem;">← Back to Dashboard</a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.__TOKEN__ = {{ token|tojson }};
+  window.__TOKEN_STATUS__ = {{ token_status|tojson }};
+  window.__CSRF__ = {{ csrf_token()|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+<script src="{{ url_for('static', filename='js/device.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}
