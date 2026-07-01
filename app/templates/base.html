@@ -23,6 +23,7 @@
           {{ current_user.full_name.split()[0] }} · {{ current_user.role }}
         </span>
         <a class="btn-ghost-nav" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <a class="btn-ghost-nav" href="{{ url_for('main.change_password') }}">Password</a>
         <a class="btn-ghost-nav" href="{{ url_for('main.logout') }}">Logout</a>
       {% else %}
         <a class="btn-primary-nav" href="{{ url_for('main.login') }}">Sign in →</a>

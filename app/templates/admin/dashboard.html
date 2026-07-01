@@ -126,7 +126,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Name</th><th>Role</th><th>Matric</th>
+              <th>Name</th><th>Role</th><th>Matric</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -142,6 +142,27 @@
                 </span>
               </td>
               <td class="text-muted text-small">{{ u.matric_no or '—' }}</td>
+              <td>
+                <details class="row-actions">
+                  <summary class="btn btn-ghost btn-sm">Manage</summary>
+                  <div class="row-actions-menu">
+                    <form method="post" action="{{ url_for('main.admin_reset_password', user_id=u.id) }}" class="row-reset-form">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="password" name="new_password" required minlength="8" placeholder="New password (min 8)">
+                      <button class="btn btn-primary btn-sm" type="submit">Reset password</button>
+                    </form>
+                    {% if u.id != current_user.id %}
+                    <form method="post" action="{{ url_for('main.admin_delete_user', user_id=u.id) }}"
+                          onsubmit="return confirm('Delete {{ u.full_name }}? This cannot be undone.');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-danger btn-sm btn-full" type="submit">Delete user</button>
+                    </form>
+                    {% else %}
+                    <div class="text-muted text-small" style="text-align:center;">This is you</div>
+                    {% endif %}
+                  </div>
+                </details>
+              </td>
             </tr>
             {% endfor %}
           </tbody>

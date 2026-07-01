@@ -202,6 +202,89 @@ def admin_enroll_student():
     return redirect(url_for("main.admin_dashboard"))
 
 
+@main.route("/admin/users/<int:user_id>/reset-password", methods=["POST"])
+@login_required
+@role_required("ADMIN")
+def admin_reset_password(user_id):
+    user = User.query.get_or_404(user_id)
+    new_password = request.form.get("new_password", "")
+    if len(new_password) < 8:
+        flash("Password must be at least 8 characters.", "danger")
+        return redirect(url_for("main.admin_dashboard"))
+
+    user.password_hash = generate_password_hash(new_password)
+    db.session.commit()
+    flash(f"Password reset for {user.full_name}.", "success")
+    return redirect(url_for("main.admin_dashboard"))
+
+
+@main.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@login_required
+@role_required("ADMIN")
+def admin_delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Can't delete the account you're currently signed in as.
+    if user.id == current_user.id:
+        flash("You can't delete your own account while signed in.", "danger")
+        return redirect(url_for("main.admin_dashboard"))
+
+    # Never remove the last remaining admin — that would lock everyone out.
+    if user.role == "ADMIN" and User.query.filter_by(role="ADMIN").count() <= 1:
+        flash("Can't delete the last admin account.", "danger")
+        return redirect(url_for("main.admin_dashboard"))
+
+    # Lecturers own courses/sessions; deleting them would wipe other people's
+    # data, so require those courses to be removed or reassigned first.
+    if user.role == "LECTURER" and Course.query.filter_by(lecturer_id=user.id).first():
+        flash(
+            "This lecturer still has courses. Delete or reassign their courses first.",
+            "warning",
+        )
+        return redirect(url_for("main.admin_dashboard"))
+
+    # Clean up this user's own dependent rows (their attendance + enrollments).
+    Attendance.query.filter_by(student_id=user.id).delete()
+    Enrollment.query.filter_by(student_id=user.id).delete()
+
+    name = user.full_name
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"Deleted user {name}.", "success")
+    return redirect(url_for("main.admin_dashboard"))
+
+
+# ---------------- ACCOUNT ----------------
+
+@main.route("/account/password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == "POST":
+        current = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        confirm = request.form.get("confirm_password", "")
+
+        if not check_password_hash(current_user.password_hash, current):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for("main.change_password"))
+        if len(new_password) < 8:
+            flash("New password must be at least 8 characters.", "danger")
+            return redirect(url_for("main.change_password"))
+        if new_password != confirm:
+            flash("New passwords do not match.", "danger")
+            return redirect(url_for("main.change_password"))
+        if check_password_hash(current_user.password_hash, new_password):
+            flash("New password must be different from your current one.", "warning")
+            return redirect(url_for("main.change_password"))
+
+        current_user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        flash("Password updated successfully.", "success")
+        return redirect(url_for("main.dashboard"))
+
+    return render_template("account/password.html")
+
+
 @main.route("/admin/reports")
 @login_required
 @role_required("ADMIN")

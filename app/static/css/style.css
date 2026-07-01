@@ -466,3 +466,36 @@ body {
   .hero-badge { display: none; }
   .page-title { font-size: 1.4rem; }
 }
+
+/* ---- Admin user-row actions (Manage disclosure) ---- */
+.row-actions { position: relative; }
+.row-actions > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.row-actions > summary::-webkit-details-marker { display: none; }
+.row-actions[open] > summary { margin-bottom: .5rem; }
+.row-actions-menu {
+  padding: .8rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  background: var(--slate-100);
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  min-width: 230px;
+}
+.row-reset-form { display: flex; flex-direction: column; gap: .45rem; }
+.row-reset-form input {
+  font-family: 'Source Sans 3', sans-serif;
+  background: #fff; border: 1.5px solid var(--slate-300);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: .85rem; color: var(--slate); width: 100%;
+  transition: all .18s ease; appearance: none;
+}
+.row-reset-form input:focus {
+  outline: none; border-color: var(--indigo-light);
+  box-shadow: 0 0 0 3px var(--indigo-glow);
+}
